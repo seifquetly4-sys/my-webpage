@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Into the Dark — A Descent Through Bioluminescent Waters</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌊</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+  :root{
+    --bg-0:#eef6f6;
+    --bg-1:#0d2b3a;
+    --bg-2:#082032;
+    --bg-3:#04121f;
+    --bg-4:#020810;
+    --bg-5:#000103;
+    --glow-cyan:#6EEAD4;
+    --glow-amber:#F6C87A;
+    --glow-violet:#B79CF2;
+    --glow-rose:#F2A0A0;
+    --ink-light:#EAF3F3;
+    --ink-dim:#9FB6BD;
+    --serif:'Fraunces', Georgia, serif;
+    --sans:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth; scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    margin:0;
+    font-family:var(--sans);
+    color:var(--ink-light);
+    background:var(--bg-5);
+    overflow-x:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
+  }
+
+  /* ---------- Depth track background ---------- */
+  #depth-track{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    background:linear-gradient(
+      to bottom,
+      var(--bg-0) 0%,
+      var(--bg-1) 12%,
+      var(--bg-2) 32%,
+      var(--bg-3) 55%,
+      var(--bg-4) 78%,
+      var(--bg-5) 100%
+    );
+    transition:filter 0.4s ease;
+  }
+
+  #particles{
+    position:fixed;
+    inset:0;
+    z-index:1;
+    pointer-events:none;
+  }
+  .mote{
+    position:absolute;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%);
+    opacity:0.35;
+    animation:drift linear infinite;
+  }
+  @keyframes drift{
+    from{ transform:translateY(0) translateX(0); }
+    to{ transform:translateY(-40px) translateX(10px); }
+  }
+
+  /* ---------- Layout ---------- */
+  main{
+    position:relative;
+    z-index:2;
+  }
+  section{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:8vh 8vw;
+    position:relative;
+  }
+
+  .depth-label{
+    position:fixed;
+    top:calc(env(safe-area-inset-top,0px) + 28px);
+    right:32px;
+    z-index:5;
+    font-family:var(--sans);
+    font-size:0.72rem;
+    letter-spacing:0.06em;
+    color:var(--ink-dim);
+    text-align:right;
+    line-height:1.5;
+    transition:color 0.4s ease;
+    pointer-events:none;
+  }
+  .depth-label .meters{
+    display:block;
+    font-size:1.1rem;
+    color:var(--ink-light);
+    font-family:var(--serif);
+    font-weight:500;
+  }
+
+  /* ---------- Hero ---------- */
+  #hero{
+    justify-content:center;
+    align-items:flex-start;
+    text-align:left;
+  }
+  .eyebrow{
+    font-size:0.85rem;
+    color:var(--glow-cyan);
+    margin:0 0 1.2rem 0;
+    max-width:36ch;
+    line-height:1.5;
+    font-weight:500;
+  }
+  h1{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(2.6rem, 7vw, 5.2rem);
+    line-height:1.03;
+    margin:0 0 1.4rem 0;
+    max-width:14ch;
+    color:#fff;
+  }
+  .hero-sub{
+    max-width:52ch;
+    font-size:1.05rem;
+    line-height:1.65;
+    color:var(--ink-dim);
+    margin:0 0 2.4rem 0;
+  }
+  .scroll-cue{
+    display:flex;
+    align-items:center;
+    gap:0.7rem;
+    font-size:0.8rem;
+    color:var(--ink-dim);
+  }
+  .scroll-cue svg{
+    width:14px; height:22px;
+    animation:bob 2.2s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{ transform:translateY(0); opacity:0.5;}
+    50%{ transform:translateY(6px); opacity:1;}
+  }
+
+  /* ---------- Zone sections ---------- */
+  .zone-head{
+    display:flex;
+    align-items:baseline;
+    gap:1rem;
+    margin-bottom:0.6rem;
+  }
+  .zone-num{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:1rem;
+    color:var(--zone-accent, var(--glow-cyan));
+  }
+  h2{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(2rem, 5vw, 3.4rem);
+    margin:0 0 0.3rem 0;
+    color:#fff;
+  }
+  .zone-range{
+    font-size:0.85rem;
+    color:var(--ink-dim);
+    margin:0 0 1.6rem 0;
+    letter-spacing:0.02em;
+  }
+  .zone-body{
+    max-width:56ch;
+    font-size:1.02rem;
+    line-height:1.75;
+    color:var(--ink-dim);
+  }
+  .zone-body strong{
+    color:var(--ink-light);
+    font-weight:600;
+  }
+
+  .creature-row{
+    display:flex;
+    gap:2.4rem;
+    margin-top:2.6rem;
+    flex-wrap:wrap;
+  }
+  .creature{
+    background:none;
+    border:none;
+    padding:0;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:0.7rem;
+    width:110px;
+    font-family:var(--sans);
+    color:var(--ink-dim);
+    font-size:0.78rem;
+  }
+  .creature svg{
+    width:60px;
+    height:60px;
+    overflow:visible;
+  }
+  .creature-name{
+    text-align:center;
+    line-height:1.3;
+  }
+  .creature:focus-visible{
+    outline:2px solid var(--zone-accent, var(--glow-cyan));
+    outline-offset:4px;
+    border-radius:8px;
+  }
+
+  /* glow pulse for creature svgs */
+  .pulse{
+    animation:pulseGlow 3.4s ease-in-out infinite;
+  }
+  @keyframes pulseGlow{
+    0%,100%{ filter:drop-shadow(0 0 3px currentColor) drop-shadow(0 0 1px currentColor); opacity:0.85;}
+    50%{ filter:drop-shadow(0 0 14px currentColor) drop-shadow(0 0 6px currentColor); opacity:1;}
+  }
+
+  /* ---------- fact panel ---------- */
+  #fact-panel{
+    position:fixed;
+    left:50%;
+    bottom:-320px;
+    transform:translateX(-50%);
+    width:min(560px, 88vw);
+    background:rgba(4,18,31,0.92);
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:16px;
+    padding:1.6rem 1.8rem;
+    z-index:20;
+    transition:bottom 0.45s cubic-bezier(.2,.9,.25,1);
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  }
+  #fact-panel.open{ bottom:28px; }
+  #fact-panel h3{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:1.5rem;
+    margin:0 0 0.5rem 0;
+    color:#fff;
+  }
+  #fact-panel p{
+    font-size:0.92rem;
+    line-height:1.6;
+    color:var(--ink-dim);
+    margin:0;
+  }
+  #fact-panel .close-btn{
+    position:absolute;
+    top:12px;
+    right:14px;
+    background:none;
+    border:none;
+    color:var(--ink-dim);
+    font-size:1.1rem;
+    cursor:pointer;
+    line-height:1;
+    padding:6px;
+  }
+  #fact-panel .close-btn:hover{ color:#fff; }
+
+  /* ---------- final section ---------- */
+  #hadal{
+    align-items:flex-start;
+    text-align:left;
+  }
+  #hadal .zone-body{ margin-bottom:2rem; }
+  .replay-btn{
+    font-family:var(--sans);
+    font-size:0.85rem;
+    font-weight:500;
+    color:var(--bg-5);
+    background:var(--glow-cyan);
+    border:none;
+    padding:0.85rem 1.6rem;
+    border-radius:999px;
+    cursor:pointer;
+    transition:transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow:0 0 24px rgba(110,234,212,0.35);
+  }
+  .replay-btn:hover{ transform:translateY(-2px); box-shadow:0 4px 30px rgba(110,234,212,0.5); }
+  .replay-btn:focus-visible{ outline:2px solid #fff; outline-offset:3px; }
+
+  footer{
+    padding:3rem 8vw 4rem;
+    font-size:0.78rem;
+    color:#4d6169;
+    position:relative;
+    z-index:2;
+  }
+
+  @media (max-width:640px){
+    section{ padding:7vh 7vw; }
+    .depth-label{ right:20px; }
+    .creature-row{ gap:1.6rem; }
+    .creature{ width:84px; }
+    .creature svg{ width:48px; height:48px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="depth-track"></div>
+<div id="particles"></div>
+
+<div class="depth-label" id="depthLabel">
+  Current depth
+  <span class="meters" id="depthMeters">0 m</span>
+</div>
+
+<main>
+
+  <section id="hero">
+    <p class="eyebrow">A short descent — scroll to go deeper</p>
+    <h1>Into the Dark</h1>
+    <p class="hero-sub">Most of the ocean has never seen the sun. Past a few hundred metres, the only light left is the light that living things make themselves. Scroll down to follow that light, zone by zone, into the deepest water on Earth.</p>
+    <div class="scroll-cue">
+      <svg viewBox="0 0 14 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="12" height="20" rx="6" stroke="currentColor" stroke-width="1.2"/>
+        <circle cx="7" cy="7" r="1.6" fill="currentColor"/>
+      </svg>
+      Scroll
+    </div>
+  </section>
+
+  <!-- SUNLIGHT ZONE -->
+  <section id="sunlight" class="zone" data-accent="#6EEAD4" data-depth="0" data-meters="0–200 m">
+    <div class="zone-head"><span class="zone-num">I</span></div>
+    <h2>The Sunlight Zone</h2>
+    <p class="zone-range">Epipelagic · 0–200 metres</p>
+    <p class="zone-body">Here there's still enough light to photosynthesize, so this thin surface layer holds nearly all the ocean's plant life and most of the fish we know by name. <strong>Bioluminescence is rare this shallow</strong> — daylight simply drowns it out. But wait until dusk, and a few residents will already begin to glow, rehearsing for the dark below.</p>
+    <div class="creature-row">
+      <button class="creature" data-fact="crystal-jelly">
+        <svg viewBox="0 0 60 60" class="pulse" style="color:#6EEAD4">
+          <ellipse cx="30" cy="24" rx="16" ry="12" fill="currentColor" opacity="0.25" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M18 30 Q19 44 16 52 M24 32 Q25 46 22 54 M30 33 Q30 47 30 55 M36 32 Q35 46 38 54 M42 30 Q41 44 44 52" stroke="currentColor" stroke-width="1.1" fill="none" opacity="0.7"/>
+        </svg>
+        <span class="creature-name">Crystal jelly</span>
+      </button>
+      <button class="creature" data-fact="flashlight-fish">
+        <svg viewBox="0 0 60 60" class="pulse" style="color:#F6C87A">
+          <ellipse cx="30" cy="30" rx="18" ry="9" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M46 30 L56 24 L56 36 Z" fill="currentColor" opacity="0.7"/>
+          <circle cx="18" cy="30" r="3" fill="currentColor"/>
+        </svg>
+        <span class="creature-name">Flashlight fish</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- TWILIGHT ZONE -->
+  <section id="twilight" class="zone" data-accent="#B79CF2" data-depth="1" data-meters="200–1,000 m">
+    <div class="zone-head"><span class="zone-num">II</span></div>
+    <h2>The Twilight Zone</h2>
+    <p class="zone-range">Mesopelagic · 200–1,000 metres</p>
+    <p class="zone-body">Sunlight fades to a blue smear and then to nothing. This is where bioluminescence stops being occasional and becomes the rule: <strong>roughly nine out of ten animals here make their own light.</strong> Most of it is blue-green, the one wavelength that still travels this far through water — so nearly everything that glows, glows the same color.</p>
+    <div class="creature-row">
+      <button class="creature" data-fact="hatchetfish">
+        <svg viewBox="0 0 60 60" class="pulse" style="color:#B79CF2">
+          <path d="M12 26 Q30 14 48 26 Q40 40 30 40 Q20 40 12 26 Z" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1.3"/>
+          <circle cx="24" cy="33" r="1.4" fill="currentColor"/>
+          <circle cx="30" cy="35" r="1.4" fill="currentColor"/>
+          <circle cx="36" cy="33" r="1.4" fill="currentColor"/>
+        </svg>
+        <span class="creature-name">Hatchetfish</span>
+      </button>
+      <button class="creature" data-fact="vampire-squid">
+        <svg viewBox="0 0 60 60" class="pulse" style="color:#8B7BD8">
+          <ellipse cx="30" cy="24" rx="11" ry="13" fill="currentColor" opacity="0.35" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M20 34 Q16 46 22 54 M25 36 Q22 48 27 55 M30 37 Q29 49 32 56 M35 36 Q37 48 34 55 M40 34 Q44 46 38 54" stroke="currentColor" stroke-width="1" fill="none" opacity="0.6"/>
+        </svg>
+        <span class="creature-name">Vampire squid</span>
+      </button>
+      <button class="creature" data-fact="siphonophore">
+        <svg viewBox="0 0 60 60" class="pulse" style="color:#6EEAD4">
+          <line x1="30" y1="6" x2="30" y2="54" stroke="currentColor" stroke-width="1.3" opacity="0.7"/>
+          <circle cx="30" cy="12" r="3" fill="currentColor" opacity="0.6"/>
+          <circle cx="24" cy="22" r="2" fill="currentColor" opacity="0.6"/>
+          <circle cx="36" cy="30" r="2" fill="currentColor" opacity="0.6"/>
+          <circle cx="25" cy="40" r="2" fill="currentColor" opacity="0.6"/>
+        </svg>
+        <span class="creature-name">Siphonophore</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- MIDNIGHT ZONE -->
+  <section id="midnight" class="zone" data-accent="#F2A0A0" data-depth="2" data-meters="1,000–4,000 m">
+    <div class="zone-head"><span class="zone-num">III</span></div>
+    <h2>The Midnight Zone</h2>
+    <p class="zone-range">Bathypelagic · 1,000–4,000 metres</p>
+    <p class="zone-body">No trace of sunlight reaches this far, ever. Food is scarce, pressure is enormous, and animals space themselves out to avoid competing for what little there is. Down here, light isn't decoration — <strong>it's a lure, a decoy, or a warning</strong>, and every glow means something specific to whoever sees it.</p>
+    <div class="creature-row">
+      <button class="creature" data-fact="anglerfish">
+        <svg viewBox="0 0 60 60" class="pulse" style="color:#F2A0A0">
+          <ellipse cx="30" cy="34" rx="15" ry="11" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M22 24 Q26 8 34 14" stroke="currentColor" stroke-width="1.2" fill="none"/>
+          <circle cx="34" cy="14" r="2.6" fill="currentColor"/>
+        </svg>
+        <span class="creature-name">Anglerfish</span>
+      </button>
+      <button class="creature" data-fact="dragonfish">
+        <svg viewBox="0 0 60 60" class="pulse" style="color:#F6C87A">
+          <path d="M10 30 Q30 20 50 30 Q44 36 30 36 Q16 36 10 30 Z" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1.2"/>
+          <line x1="14" y1="32" x2="6" y2="42" stroke="currentColor" stroke-width="1.1"/>
+          <circle cx="6" cy="42" r="2.2" fill="currentColor"/>
+        </svg>
+        <span class="creature-name">Dragonfish</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ABYSS -->
+  <section id="abyss" class="zone" data-accent="#7EC8E3" data-depth="3" data-meters="4,000–6,000 m">
+    <div class="zone-head"><span class="zone-num">IV</span></div>
+    <h2>The Abyss</h2>
+    <p class="zone-range">Abyssopelagic · 4,000–6,000 metres</p>
+    <p class="zone-body">Near-freezing water, crushing pressure, and total darkness cover most of the planet's seafloor here — this single zone is <strong>the largest habitat on Earth</strong> by area, larger than every forest, desert and grassland combined. Life is sparse and slow, but it persists: sea cucumbers, brittle stars, and the occasional drifting glow of something that fell from far above.</p>
+    <div class="creature-row">
+      <button class="creature" data-fact="sea-cucumber">
+        <svg viewBox="0 0 60 60" class="pulse" style="color:#7EC8E3">
+          <path d="M12 32 Q18 22 30 24 Q42 26 48 34 Q40 40 30 38 Q18 36 12 32 Z" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1.2"/>
+        </svg>
+        <span class="creature-name">Sea cucumber</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- HADAL -->
+  <section id="hadal" class="zone" data-accent="#8FA6B2" data-depth="4" data-meters="6,000–11,000 m">
+    <div class="zone-head"><span class="zone-num">V</span></div>
+    <h2>The Hadal Zone</h2>
+    <p class="zone-range">Trenches · 6,000–11,000 metres</p>
+    <p class="zone-body">Named for Hades, this is the ocean's deepest reach — narrow trenches carved into the seafloor, where the pressure would crush an unprotected human instantly. Fewer than thirty people have ever gone this deep; <strong>more people have walked on the Moon.</strong> And yet even here, snailfish and amphipods drift through water that has never once seen the sun.</p>
+    <button class="replay-btn" id="replayBtn">Back to the surface</button>
+  </section>
+
+</main>
+
+<div id="fact-panel">
+  <button class="close-btn" id="closePanelBtn" aria-label="Close">✕</button>
+  <h3 id="factTitle"></h3>
+  <p id="factBody"></p>
+</div>
+
+<footer>An imagined descent, drawn in code rather than photographed — depths and behaviors are approximate and illustrative.</footer>
+
+<script>
+(function(){
+
+  // ---- Facts ----
+  const facts = {
+    'crystal-jelly': {
+      title: 'Crystal jelly',
+      body: 'This jelly carries a protein that glows green under blue light — a discovery that eventually let scientists tag and track proteins inside living cells throughout biology, from cancer research to neuroscience.'
+    },
+    'flashlight-fish': {
+      title: 'Flashlight fish',
+      body: 'It keeps glowing bacteria in a pouch beneath each eye and can rotate or blink the pouch shut, using its own headlights to signal, hunt, or vanish in an instant.'
+    },
+    'hatchetfish': {
+      title: 'Hatchetfish',
+      body: 'Rows of light along its belly match the faint glow of the water above, erasing its silhouette from below — a trick called counter-illumination, camouflage made of light instead of color.'
+    },
+    'vampire-squid': {
+      title: 'Vampire squid',
+      body: 'Despite the name, it eats only drifting debris. When startled, it doesn’t ink like other cephalopods — it releases a cloud of glowing mucus and waits for the threat to lose interest.'
+    },
+    'siphonophore': {
+      title: 'Siphonophore',
+      body: 'Not one animal but a colony of thousands, each specialized for feeding, swimming or defense. Some can stretch longer than a blue whale, trailing glowing lures through the water.'
+    },
+    'anglerfish': {
+      title: 'Anglerfish',
+      body: 'The light hangs from a modified fin spine like a fishing rod, powered by bacteria the fish cultivates on purpose. Smaller fish swim toward the glow and never swim away.'
+    },
+    'dragonfish': {
+      title: 'Dragonfish',
+      body: 'One of the only deep-sea animals that can produce and see red light, which almost nothing else down here can detect — effectively a private wavelength invisible to prey and predators alike.'
+    },
+    'sea-cucumber': {
+      title: 'Sea cucumber',
+      body: 'Some abyssal species, when grabbed, shed a glowing patch of skin in the attacker’s grip and swim off in the dark — a luminous decoy left behind as a parting gift.'
+    }
+  };
+
+  const panel = document.getElementById('fact-panel');
+  const factTitle = document.getElementById('factTitle');
+  const factBody = document.getElementById('factBody');
+
+  document.querySelectorAll('.creature').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const key = btn.getAttribute('data-fact');
+      const f = facts[key];
+      if(!f) return;
+      factTitle.textContent = f.title;
+      factBody.textContent = f.body;
+      panel.classList.add('open');
+    });
+  });
+  document.getElementById('closePanelBtn').addEventListener('click', ()=>{
+    panel.classList.remove('open');
+  });
+
+  // ---- Depth label + track lightness (based on scroll position) ----
+  const zones = Array.from(document.querySelectorAll('.zone'));
+  const depthMetersEl = document.getElementById('depthMeters');
+  const depthLabelEl = document.getElementById('depthLabel');
+  const hero = document.getElementById('hero');
+
+  function currentZone(){
+    const mid = window.scrollY + window.innerHeight * 0.4;
+    let active = null;
+    for(const z of zones){
+      if(z.offsetTop <= mid) active = z;
+    }
+    return active;
+  }
+
+  function updateDepth(){
+    const z = currentZone();
+    if(!z){
+      depthMetersEl.textContent = '0 m';
+      depthLabelEl.style.color = 'rgba(20,50,60,0.55)';
+      return;
+    }
+    depthMetersEl.textContent = z.getAttribute('data-meters');
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const progress = Math.min(1, Math.max(0, scrollTop / docHeight));
+    depthLabelEl.style.color = progress < 0.06 ? 'rgba(20,50,60,0.55)' : 'var(--ink-dim)';
+  }
+
+  window.addEventListener('scroll', updateDepth, {passive:true});
+  updateDepth();
+
+  // ---- Replay ----
+  document.getElementById('replayBtn').addEventListener('click', ()=>{
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+
+  // ---- Ambient particles (motes drifting upward) ----
+  const particleLayer = document.getElementById('particles');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduceMotion){
+    const count = window.innerWidth < 640 ? 22 : 40;
+    for(let i=0;i<count;i++){
+      const mote = document.createElement('div');
+      mote.className = 'mote';
+      const size = 1 + Math.random()*2.5;
+      mote.style.width = size+'px';
+      mote.style.height = size+'px';
+      mote.style.left = (Math.random()*100)+'vw';
+      mote.style.top = (Math.random()*100)+'vh';
+      const dur = 14 + Math.random()*18;
+      mote.style.animationDuration = dur+'s';
+      mote.style.animationDelay = (-Math.random()*dur)+'s';
+      particleLayer.appendChild(mote);
+    }
+  }
+
+})();
+</script>
+</body>
+</html>
